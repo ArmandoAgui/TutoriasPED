@@ -1,48 +1,3 @@
-////////////////////////////////////////////////////////////////////
-Manejo de Estructuras Estáticas en C++
-
-struct Persona {
-    char nombre[50];
-    int edad;
-};
-
-int main() {
-    Persona p1 = {"Juan", 30};
-    std::cout << p1.nombre << " tiene " << p1.edad << " años." << std::endl;
-    return 0;
-}
-
-/////////////////////////////////////////////////////////////////////
-Paso por Referencias en C++
-
-void incrementar(int &valor) {
-    valor++;
-}
-
-int main() {
-    int numero = 5;
-    incrementar(numero);
-    std::cout << "Número después de incrementar: " << numero << std::endl;
-    return 0;
-}
-
-////////////////////////////////////////////////////////////////////
-Recursividad en C++
-
-int factorial(int n) {
-    if (n == 0) return 1;
-    return n * factorial(n - 1);
-}
-
-int main() {
-    int resultado = factorial(5);
-    std::cout << "Factorial de 5: " << resultado << std::endl;
-    return 0;
-}
-
-////////////////////////////////////////////////////////////////////
-Punteros y Structs en C++
-
 #include <iostream>
 #include <string>
 
@@ -180,6 +135,3 @@ void eliminarPersona(Persona* personas, int* tam) {
 bool validarIndice(int tam, int indice) {
     return indice >= 0 && indice < tam;
 }
-
-
-
