@@ -3,251 +3,257 @@
 
 using namespace std;
 
-struct Member
-{
-    string first_name;
-    string last_name;
-    int age;
-    Member *next;
+// Estructura de miembro (Pila de miembros)
+struct Miembro {
+    string nombre;
+    string apellido;
+    int edad;
+    Miembro* siguiente;
 };
 
-struct Club
-{
-    string name;
-    string creation_date;
-    int max_capacity;
-    int member_count;
-    Member *member_stack;
-    Club *next;
-    Club *prev;
+// Estructura de club (Lista doblemente enlazada de clubes)
+struct Club {
+    string nombre;
+    string fecha;
+    Miembro* miembros; // Puntero a la pila de miembros
+    Club* siguiente;
+    Club* anterior;
 };
 
-// Lista doblemente enlazada de Clubes
-Club *listaClubes = nullptr;
+// Punteros a la lista doble de clubes
+Club* listaClubes = nullptr;
 
 // Declaración de funciones
-void CrearClub();
-void ListarClubes();
-void RegistrarMiembro();
-void ListarMiembros();
-void CalcularTotalMiembros();
-void MostrarMenu();
+void mostrarMenu();
+void agregarClub(Club*& lista, const string& nombre, const string& fecha);
+void agregarMiembro(Club*& club, const string& nombre, const string& apellido, int edad);
+void listarClubes(const Club* lista);
+void eliminarClub(Club*& lista, const string& nombre);
+int contarMiembros(const Club* club);
+void verMiembros(const Club* club);
+void modificarMiembro(Club*& club, const string& nombre);
+void eliminarMiembro(Club*& club, const string& nombre);
 
-int main()
-{
+int main() {
     int opcion;
-    do
-    {
-        MostrarMenu();
+    do {
+        mostrarMenu();
+        cout << "Seleccione una opción: ";
         cin >> opcion;
-        switch (opcion)
-        {
-        case 1:
-            CrearClub();
-            break;
-        case 2:
-            ListarClubes();
-            break;
-        case 3:
-            RegistrarMiembro();
-            break;
-        case 4:
-            ListarMiembros();
-            break;
-        case 5:
-            CalcularTotalMiembros();
-            break;
-        case 6:
-            cout << "Saliendo del programa." << endl;
-            break;
-        default:
-            cout << "Opción inválida. Intente nuevamente." << endl;
+        cin.ignore();
+
+        switch(opcion) {
+            case 1: {
+                string nombre, fecha;
+                cout << "Ingrese el nombre del club: ";
+                getline(cin, nombre);
+                cout << "Ingrese la fecha de creación del club: ";
+                getline(cin, fecha);
+                agregarClub(listaClubes, nombre, fecha);
+                break;
+            }
+            case 2: {
+                string nombreClub, nombreMiembro, apellido;
+                int edad;
+                cout << "Ingrese el nombre del club: ";
+                getline(cin, nombreClub);
+                Club* temp = listaClubes;
+                while (temp && temp->nombre != nombreClub) temp = temp->siguiente;
+                if (temp) {
+                    cout << "Ingrese el nombre del miembro: ";
+                    getline(cin, nombreMiembro);
+                    cout << "Ingrese el apellido del miembro: ";
+                    getline(cin, apellido);
+                    cout << "Ingrese la edad del miembro: ";
+                    cin >> edad;
+                    agregarMiembro(temp, nombreMiembro, apellido, edad);
+                } else {
+                    cout << "Club no encontrado.\n";
+                }
+                break;
+            }
+            case 3:
+                listarClubes(listaClubes);
+                break;
+            case 4: {
+                string nombre;
+                cout << "Ingrese el nombre del club a eliminar: ";
+                getline(cin, nombre);
+                eliminarClub(listaClubes, nombre);
+                break;
+            }
+            case 5: {
+                string nombre;
+                cout << "Ingrese el nombre del club para contar sus miembros: ";
+                getline(cin, nombre);
+                Club* temp = listaClubes;
+                while (temp && temp->nombre != nombre) temp = temp->siguiente;
+                if (temp) {
+                    cout << "Cantidad de miembros en el club " << temp->nombre << ": " << contarMiembros(temp) << endl;
+                } else {
+                    cout << "Club no encontrado.\n";
+                }
+                break;
+            }
+            case 6: {
+                string nombreClub;
+                cout << "Ingrese el nombre del club para ver sus miembros: ";
+                getline(cin, nombreClub);
+                Club* temp = listaClubes;
+                while (temp && temp->nombre != nombreClub) temp = temp->siguiente;
+                if (temp) {
+                    verMiembros(temp);
+                } else {
+                    cout << "Club no encontrado.\n";
+                }
+                break;
+            }
+            case 7: {
+                string nombreClub, nombreMiembro;
+                cout << "Ingrese el nombre del club: ";
+                getline(cin, nombreClub);
+                Club* temp = listaClubes;
+                while (temp && temp->nombre != nombreClub) temp = temp->siguiente;
+                if (temp) {
+                    cout << "Ingrese el nombre del miembro a modificar: ";
+                    getline(cin, nombreMiembro);
+                    modificarMiembro(temp, nombreMiembro);
+                } else {
+                    cout << "Club no encontrado.\n";
+                }
+                break;
+            }
+            case 8: {
+                string nombreClub, nombreMiembro;
+                cout << "Ingrese el nombre del club: ";
+                getline(cin, nombreClub);
+                Club* temp = listaClubes;
+                while (temp && temp->nombre != nombreClub) temp = temp->siguiente;
+                if (temp) {
+                    cout << "Ingrese el nombre del miembro a eliminar: ";
+                    getline(cin, nombreMiembro);
+                    eliminarMiembro(temp, nombreMiembro);
+                } else {
+                    cout << "Club no encontrado.\n";
+                }
+                break;
+            }
+            case 0:
+                cout << "Saliendo del programa.\n";
+                break;
+            default:
+                cout << "Opción no válida.\n";
         }
-    } while (opcion != 6);
+    } while (opcion != 0);
 
     return 0;
 }
 
-void MostrarMenu()
-{
-    cout << "\nMenú de Gestión de Clubes" << endl;
-    cout << "1. Crear un nuevo club" << endl;
-    cout << "2. Listar todos los clubes" << endl;
-    cout << "3. Registrar un miembro en un club" << endl;
-    cout << "4. Listar miembros de un club" << endl;
-    cout << "5. Calcular el total de miembros en un club" << endl;
-    cout << "6. Salir" << endl;
-    cout << "Seleccione una opción: ";
+// Función para mostrar el menú
+void mostrarMenu() {
+    cout << "\n--- Gestión de Clubes ---\n";
+    cout << "1. Agregar Club\n";
+    cout << "2. Agregar Miembro a un Club\n";
+    cout << "3. Listar Clubes y Miembros\n";
+    cout << "4. Eliminar Club\n";
+    cout << "5. Contar Miembros en un Club\n";
+    cout << "6. Ver Miembros de un Club\n";
+    cout << "7. Modificar Miembro de un Club\n";
+    cout << "8. Eliminar Miembro de un Club\n";
+    cout << "0. Salir\n";
 }
 
-void CrearClub()
-{
-    Club *nuevoClub = new Club;
-    cout << "Ingrese el nombre del club: ";
-    cin >> ws;
-    getline(cin, nuevoClub->name);
-    cout << "Ingrese la fecha de creación (dd/mm/aaaa): ";
-    getline(cin, nuevoClub->creation_date);
-    cout << "Ingrese la capacidad máxima de miembros: ";
-    cin >> nuevoClub->max_capacity;
-
-    nuevoClub->member_count = 0;
-    nuevoClub->member_stack = nullptr;
-    nuevoClub->next = nullptr;
-    nuevoClub->prev = nullptr;
-
-    if (listaClubes == nullptr)
-    {
-        listaClubes = nuevoClub;
-    }
-    else
-    {
-        Club *temporal = listaClubes;
-        while (temporal->next != nullptr)
-        {
-            temporal = temporal->next;
-        }
-        temporal->next = nuevoClub;
-        nuevoClub->prev = temporal;
-    }
-
-    cout << "Club '" << nuevoClub->name << "' creado exitosamente." << endl;
-}
-
-void ListarClubes()
-{
-    if (listaClubes == nullptr)
-    {
-        cout << "No hay clubes registrados." << endl;
-        return;
-    }
-
-    Club *temporal = listaClubes;
-    int index = 1;
-    while (temporal != nullptr)
-    {
-        cout << "Club " << index++ << ": " << temporal->name
-             << ", Creación: " << temporal->creation_date
-             << ", Capacidad: " << temporal->max_capacity
-             << ", Miembros: " << temporal->member_count << endl;
-        temporal = temporal->next;
+// Función para crear un nuevo club
+void agregarClub(Club*& lista, const string& nombre, const string& fecha) {
+    Club* nuevoClub = new Club{nombre, fecha, nullptr, nullptr, nullptr};
+    if (!lista) {
+        lista = nuevoClub;
+    } else {
+        Club* temp = lista;
+        while (temp->siguiente) temp = temp->siguiente;
+        temp->siguiente = nuevoClub;
+        nuevoClub->anterior = temp;
     }
 }
 
-void RegistrarMiembro()
-{
-    if (listaClubes == nullptr)
-    {
-        cout << "No hay clubes registrados. Primero cree un club." << endl;
-        return;
-    }
-
-    ListarClubes();
-    int club_index;
-    cout << "Seleccione el índice del club donde desea registrar al miembro: ";
-    cin >> club_index;
-
-    Club *club = listaClubes;
-    for (int i = 1; i < club_index && club != nullptr; i++)
-    {
-        club = club->next;
-    }
-
-    if (club == nullptr)
-    {
-        cout << "Índice de club inválido." << endl;
-        return;
-    }
-
-    if (club->member_count >= club->max_capacity)
-    {
-        cout << "Capacidad máxima de miembros alcanzada en el club " << club->name << "." << endl;
-        return;
-    }
-
-    Member *nuevoMiembro = new Member;
-    cout << "Ingrese el nombre del miembro: ";
-    cin >> ws;
-    getline(cin, nuevoMiembro->first_name);
-    cout << "Ingrese el apellido del miembro: ";
-    getline(cin, nuevoMiembro->last_name);
-    cout << "Ingrese la edad del miembro: ";
-    cin >> nuevoMiembro->age;
-
-    nuevoMiembro->next = club->member_stack;
-    club->member_stack = nuevoMiembro;
-    club->member_count++;
-
-    cout << "Miembro '" << nuevoMiembro->first_name << " " << nuevoMiembro->last_name
-         << "' registrado exitosamente en el club " << club->name << "." << endl;
+// Función para agregar un miembro a la pila de un club
+void agregarMiembro(Club*& club, const string& nombre, const string& apellido, int edad) {
+    Miembro* nuevoMiembro = new Miembro{nombre, apellido, edad, nullptr};
+    nuevoMiembro->siguiente = club->miembros;
+    club->miembros = nuevoMiembro;
 }
 
-void ListarMiembros()
-{
-    if (listaClubes == nullptr)
-    {
-        cout << "No hay clubes registrados." << endl;
-        return;
-    }
-
-    ListarClubes();
-    int club_index;
-    cout << "Seleccione el índice del club para listar sus miembros: ";
-    cin >> club_index;
-
-    Club *club = listaClubes;
-    for (int i = 1; i < club_index && club != nullptr; i++)
-    {
-        club = club->next;
-    }
-
-    if (club == nullptr)
-    {
-        cout << "Índice de club inválido." << endl;
-        return;
-    }
-
-    if (club->member_stack == nullptr)
-    {
-        cout << "No hay miembros registrados en el club " << club->name << "." << endl;
-        return;
-    }
-
-    Member *temporal = club->member_stack;
-    int index = 1;
-    while (temporal != nullptr)
-    {
-        cout << "Miembro " << index++ << ": " << temporal->first_name
-             << " " << temporal->last_name
-             << ", Edad: " << temporal->age << endl;
-        temporal = temporal->next;
+// Función para imprimir todos los clubes y sus miembros
+void listarClubes(const Club* lista) {
+    const Club* temp = lista;
+    while (temp) {
+        cout << "Club: " << temp->nombre << ", Fecha: " << temp->fecha << endl;
+        verMiembros(temp);
+        temp = temp->siguiente;
     }
 }
 
-void CalcularTotalMiembros()
-{
-    if (listaClubes == nullptr)
-    {
-        cout << "No hay clubes registrados." << endl;
-        return;
+// Función para eliminar un club
+void eliminarClub(Club*& lista, const string& nombre) {
+    Club* temp = lista;
+    while (temp && temp->nombre != nombre) temp = temp->siguiente;
+    if (!temp) return;
+    if (temp->anterior) temp->anterior->siguiente = temp->siguiente;
+    if (temp->siguiente) temp->siguiente->anterior = temp->anterior;
+    if (temp == lista) lista = temp->siguiente;
+    delete temp;
+}
+
+// Función para contar miembros en un club
+int contarMiembros(const Club* club) {
+    int contador = 0;
+    const Miembro* temp = club->miembros;
+    while (temp) {
+        contador++;
+        temp = temp->siguiente;
     }
+    return contador;
+}
 
-    ListarClubes();
-    int club_index;
-    cout << "Seleccione el índice del club para calcular el total de miembros: ";
-    cin >> club_index;
-
-    Club *club = listaClubes;
-    for (int i = 1; i < club_index && club != nullptr; i++)
-    {
-        club = club->next;
+// Función para ver miembros de un club
+void verMiembros(const Club* club) {
+    const Miembro* miembroTemp = club->miembros;
+    while (miembroTemp) {
+        cout << "  Miembro: " << miembroTemp->nombre << " " << miembroTemp->apellido << ", Edad: " << miembroTemp->edad << endl;
+        miembroTemp = miembroTemp->siguiente;
     }
+}
 
-    if (club == nullptr)
-    {
-        cout << "Índice de club inválido." << endl;
-        return;
+// Función para modificar un miembro
+void modificarMiembro(Club*& club, const string& nombre) {
+    Miembro* temp = club->miembros;
+    while (temp && temp->nombre != nombre) temp = temp->siguiente;
+    if (temp) {
+        cout << "Ingrese el nuevo nombre: ";
+        getline(cin, temp->nombre);
+        cout << "Ingrese el nuevo apellido: ";
+        getline(cin, temp->apellido);
+        cout << "Ingrese la nueva edad: ";
+        cin >> temp->edad;
+        cin.ignore();
+    } else {
+        cout << "Miembro no encontrado.\n";
     }
+}
 
-    cout << "Total de miembros en el club " << club->name << ": " << club->member_count << endl;
+// Función para eliminar un miembro de un club
+void eliminarMiembro(Club*& club, const string& nombre) {
+    Miembro* temp = club->miembros;
+    Miembro* anterior = nullptr;
+    while (temp && temp->nombre != nombre) {
+        anterior = temp;
+        temp = temp->siguiente;
+    }
+    if (temp) {
+        if (anterior) anterior->siguiente = temp->siguiente;
+        else club->miembros = temp->siguiente;
+        delete temp;
+    } else {
+        cout << "Miembro no encontrado.\n";
+    }
 }
